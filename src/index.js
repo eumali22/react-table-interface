@@ -1,27 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Example from './hook-example.js';
+import Example from './hook-example';
+import DataTable from './DataTable';
 
 /*****************/
 
 // manual switch to select which app to display
-const key = 'hook-example';
-var componentToShow;
+const key = 'data-table';
+var appToShow;
 
 switch (key) {
   case 'hook-example':
-    componentToShow = <Example />
+    appToShow = <Example />
+    break;
+
+  case 'data-table':
+    appToShow = <DataTable />
     break;
 
   default:
-    componentToShow = <Example />
+    appToShow = <DataTable />
     break;
 }
 
 ReactDOM.render(
   <React.StrictMode>
-    {componentToShow}
+    {appToShow}
   </React.StrictMode>,
   document.getElementById('root')
 );
