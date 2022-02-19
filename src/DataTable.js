@@ -11,46 +11,71 @@ class DataTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            headerData: [],
-            tableData: [],
+            headerData: null,
+            tableData: null,
             dataIsLoaded: false,
+            dataFetchError: null,
         }
+    }
+
+    processJsonData(dataArr) {
+        // get fields and set headerData. Must have at least one record
+        if (!dataArr && !dataArr[0]) { // no content
+            return false;
+        }
+        
+        this.setState({
+            headerData: Object.keys(dataArr[0]),
+            tableData: dataArr,
+        });
+        
     }
 
     componentDidMount() {
         // TO DO fetch code here
-        
-        // simulate loading time. 1000 ms
-        setTimeout(() => {
-            this.setState({
-                headerData: new Array(5).fill("HEADER"),
-                tableData: new Array(10).fill(new Array(5).fill("hello")),
-                dataIsLoaded: true,
+        let url = "http://localhost:3001/employees";
+        fetch(url)
+            .then(manageFetchErrors)
+            .then(res => res.json())
+            .then(json => {
+                this.processJsonData(json);
+                this.setState({ dataIsLoaded: true });
+            })
+            .catch((error) => {
+                console.error('ERROR: ', error);
+                this.setState({ dataFetchError: error });
             });
-        }, 1000);
     }
 
     render() {
-        const {dataIsLoaded, headerData, tableData} = this.state;
-        if (!dataIsLoaded) {
-            return (
-                <div>Loading, please wait... </div>
-            );
+        const {dataIsLoaded, headerData, tableData, dataFetchError} = this.state;
+        
+        if (dataFetchError) {
+            return (<div>{"Error with fetching data: " + dataFetchError}</div>);
         }
+        if (!dataIsLoaded) {
+            return <div>Loading, please wait... </div>
+        }
+        
+        const headerComponent =
+            <DataTableRow
+                key={"-1"}
+                isHeader={true} 
+                cells={headerData}
+            />
 
-        const headerAndRowData = [headerData].concat(tableData);
-        const rowComponents = headerAndRowData.map((row, idx) => {
+        const rowComponents = tableData.map((elt, idx) => {
             return (
                 <DataTableRow
                     key={idx}
-                    isHeader={idx === 0}
-                    cells={headerAndRowData[idx]}
+                    isHeader={false}
+                    cells={headerData.map((x) => elt[x])}
                 />
             );
         });
 
         return (
-            <div className="dtable">{rowComponents}</div>
+            <div className="dtable">{[headerComponent].concat(rowComponents)}</div>
         );
     }
 }
@@ -95,5 +120,12 @@ function DataTableCell(props) {
     );
 }
 
+
+function manageFetchErrors(response) {
+    if (!response.ok) {
+        throw Error(response.status + " " + response.statusText);
+    }
+    return response;
+}
 
 export default DataTable;
