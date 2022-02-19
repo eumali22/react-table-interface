@@ -2,7 +2,7 @@ import React from 'react';
 import './DataTable.css';
 
 /**
- * Component that represents a table. It is stateful.
+ * Component that represents a table. Contains the state.
  * @extends React.Component
  * State properties:
  *  - tableData: contains the table data to be rendered.
@@ -11,6 +11,7 @@ class DataTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            headerData: [],
             tableData: [],
             dataIsLoaded: false,
         }
@@ -22,24 +23,29 @@ class DataTable extends React.Component {
         // simulate loading time. 1000 ms
         setTimeout(() => {
             this.setState({
-                tableData: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+                headerData: new Array(5).fill("HEADER"),
+                tableData: new Array(10).fill(new Array(5).fill("hello")),
                 dataIsLoaded: true,
             });
         }, 1000);
     }
 
     render() {
-        const {dataIsLoaded, tableData} = this.state;
+        const {dataIsLoaded, headerData, tableData} = this.state;
         if (!dataIsLoaded) {
             return (
                 <div>Loading, please wait... </div>
             );
         }
 
-        // create the row components
-        const rowComponents = tableData.map((row, idx) => {
+        const headerAndRowData = [headerData].concat(tableData);
+        const rowComponents = headerAndRowData.map((row, idx) => {
             return (
-                <DataTableRow key={idx} cells={tableData[idx]} />
+                <DataTableRow
+                    key={idx}
+                    isHeader={idx === 0}
+                    cells={headerAndRowData[idx]}
+                />
             );
         });
 
@@ -58,12 +64,19 @@ function DataTableRow(props) {
     // create the cells
     const columnComponents = props.cells.map((col, idx) => {
         return (
-            <DataTableCell key={idx} data={props.cells[idx]} />
+            <DataTableCell
+                key={idx}
+                idx={idx}
+                data={props.cells[idx]}
+                isHeader={props.isHeader}
+            />
         );
     });
 
     return (
-        <div className="dtable-row">{columnComponents}</div>
+        <div className={props.isHeader ? "dtable-header-row" : "dtable-row"}>
+            {columnComponents}
+        </div>
     );
 }
 
@@ -74,7 +87,11 @@ function DataTableRow(props) {
  */
 function DataTableCell(props) {
     return (
-        <div className="dtable-cell">{props.data}</div>
+        <div 
+            className={props.isHeader ? "dtable-header-cell" : "dtable-cell"}
+            onClick={() => console.log(props.idx)}>
+            {props.data}
+        </div>
     );
 }
 
