@@ -15,6 +15,7 @@ class DataTable extends React.Component {
             tableData: null,
             dataIsLoaded: false,
             dataFetchError: null,
+            editableRows: null,
         }
     }
 
@@ -27,16 +28,20 @@ class DataTable extends React.Component {
         this.setState({
             headerData: Object.keys(dataArr[0]),
             tableData: dataArr,
+            editableRows: new Array(dataArr.length).fill(false),
         });
-        
     }
 
     componentDidMount() {
-        // TO DO fetch code here
         let url = "http://localhost:3001/employees";
         fetch(url)
-            .then(manageFetchErrors)
-            .then(res => res.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw Error(response.status + " " + response.statusText);
+                }
+                return response;
+            })
+            .then(response => response.json())
             .then(json => {
                 this.processJsonData(json);
                 this.setState({ dataIsLoaded: true });
@@ -68,8 +73,11 @@ class DataTable extends React.Component {
             return (
                 <DataTableRow
                     key={idx}
+                    idx={idx}
                     isHeader={false}
                     cells={headerData.map((x) => elt[x])}
+                    onDblClick={(i) => this.handleDblClick(i)}
+                    isEditMode={this.state.editableRows[idx]}
                 />
             );
         });
@@ -78,11 +86,35 @@ class DataTable extends React.Component {
             <div className="dtable">{[headerComponent].concat(rowComponents)}</div>
         );
     }
+
+    /**
+     * Double clicking any cell will edit the whole row.
+     * Only one row can be editable at a time.
+     * @param {int} idx the row index.
+     */
+    handleDblClick(idx) {
+        const {editableRows, tableData} = this.state;
+        if (editableRows[idx]) { // skip update
+            return false;
+        }
+
+        const newArr = new Array(tableData.length).fill(false);
+        newArr[idx] = true; // set to editable
+        this.setState({
+            editableRows: newArr, 
+        });
+    }
+    
 }
 
 /**
  * A row for a DataTable. Functional component.
- * @param {*} props an object; should have property called cells.
+ * @param {*} props expected:
+ *  - isHeader
+ *  - idx
+ *  - cells
+ *  - onDblClick
+ *  - isEditMode
  * @returns a DataTableRow component containing DataTableColumn components.
  */
 function DataTableRow(props) {
@@ -91,9 +123,12 @@ function DataTableRow(props) {
         return (
             <DataTableCell
                 key={idx}
+                rowIdx={props.idx}
                 idx={idx}
                 data={props.cells[idx]}
                 isHeader={props.isHeader}
+                onDblClick={props.onDblClick}
+                rowIsEditMode={props.isEditMode}
             />
         );
     });
@@ -107,25 +142,39 @@ function DataTableRow(props) {
 
 /**
  * A single cell for a DataTable. Functional component.
- * @param {*} props 
+ * @param {*} props expected:
+ *  - rowIdx
+ *  - idx
+ *  - data
+ *  - isHeader
+ *  - rowIsEditMode
  * @returns a DataTableCell component.
  */
 function DataTableCell(props) {
-    return (
-        <div 
-            className={props.isHeader ? "dtable-header-cell" : "dtable-cell"}
-            onClick={() => console.log(props.idx)}>
-            {props.data}
-        </div>
-    );
-}
-
-
-function manageFetchErrors(response) {
-    if (!response.ok) {
-        throw Error(response.status + " " + response.statusText);
+    if (props.rowIsEditMode) {
+        return (
+            <div
+                className={props.isHeader ? "dtable-header-cell" : "dtable-cell"}
+            >
+                <input type="text" value={props.data}>
+                    
+                </input>
+            </div>
+            
+        );
+    } else {
+        return (
+            <div
+                className={props.isHeader ? "dtable-header-cell" : "dtable-cell"}
+                onClick={() => console.log(props.rowIdx + "," + props.idx)}
+                onDoubleClick={() => props.onDblClick(props.rowIdx)}
+            >
+                {props.data}
+            </div>
+        );
     }
-    return response;
+    
 }
+
 
 export default DataTable;

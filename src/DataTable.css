@@ -37,6 +37,7 @@
     background-color: beige;
     cursor: pointer;
     padding: 2px;
+    user-select: none;
 }
 
 .dtable-cell:nth-of-type(1) {
@@ -52,4 +53,5 @@
     color:aqua;
     cursor: default;
     padding: 2px;
+    user-select: none;
 }
