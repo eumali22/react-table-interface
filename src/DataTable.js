@@ -11,20 +11,63 @@ import OutsideClickHandler from './OutsideClickHandler.js';
 class DataTable extends React.Component {
     constructor(props) {
         super(props);
+
         this.handleChange = this.handleChange.bind(this);
+        this.handleRowEdit = this.handleRowEdit.bind(this);
+
         this.state = {
             headerData: null,
             tableData: null,
             dataIsLoaded: false,
             dataFetchError: null,
             editableRows: null,
+            rowBeforeEdit: null,
         }
+    }
+
+
+    /**
+     * Double clicking any cell will edit the whole row.
+     * Only one row can be editable at a time.
+     * @param {int} idx the row index.
+     */
+    handleDblClick(idx) {
+        const { editableRows, tableData } = this.state;
+        if (editableRows[idx]) { // skip update
+            return false;
+        }
+
+        const newArr = new Array(tableData.length).fill(false);
+        newArr[idx] = true; // set to editable
+        const rowBackup = [...tableData[idx]]; // save row snapshot
+        this.setState({
+            editableRows: newArr,
+            rowBeforeEdit: rowBackup,
+        });
     }
 
     handleChange(rowIdx, cellIdx, newValue) {
         const newTableData = [...this.state.tableData];
         newTableData[rowIdx][cellIdx] = newValue;
         this.setState({tableData: newTableData});
+    }
+
+    handleRowEdit(idx, isSave) {
+        if (!isSave) { // cancel/revert changes
+            const newTable = [...this.state.tableData];
+            newTable[idx] = [...this.state.rowBeforeEdit];
+            this.setState({
+                editableRows: new Array(this.state.tableData.length).fill(false),
+                tableData: newTable,
+                rowBeforeEdit: null,
+            });
+        } else {
+            this.setState({
+                editableRows: new Array(this.state.tableData.length).fill(false),
+                rowBeforeEdit: null,
+            });
+        }
+        
     }
 
     processJsonData(dataArr) {
@@ -95,6 +138,7 @@ class DataTable extends React.Component {
                     onDblClick={(i) => this.handleDblClick(i)}
                     isEditMode={this.state.editableRows[idx]}
                     onFieldChange={this.handleChange}
+                    handleRowEdit={this.handleRowEdit}
                 />
             );
         });
@@ -104,23 +148,6 @@ class DataTable extends React.Component {
         );
     }
 
-    /**
-     * Double clicking any cell will edit the whole row.
-     * Only one row can be editable at a time.
-     * @param {int} idx the row index.
-     */
-    handleDblClick(idx) {
-        const {editableRows, tableData} = this.state;
-        if (editableRows[idx]) { // skip update
-            return false;
-        }
-
-        const newArr = new Array(tableData.length).fill(false);
-        newArr[idx] = true; // set to editable
-        this.setState({
-            editableRows: newArr, 
-        });
-    }
     
 }
 
@@ -145,17 +172,17 @@ class DataTableRow extends React.Component {
         if (this.props.isEditMode) {
             return (
                 <OutsideClickHandler
-                    onOutsideClick={() => {
-                        alert('You clicked outside of this component!!!');
-                    }}
+                    onOutsideClick={() => this.props.handleRowEdit(this.props.idx, false)}
                     customClass={"dtable-row-wrapper heyclass selected-row"}
                 >
                     <div className={"dtable-row"}>
                         {columnComponents}
                     </div>
                     <div className="dtable-row-btn-panel">
-                        <input type="button" value="Cancel" />
-                        <input type="button" value="Save" />
+                        <input type="button" value="Cancel"
+                            onClick={() => this.props.handleRowEdit(this.props.idx, false)} />
+                        <input type="button" value="Save"
+                            onClick={() => this.props.handleRowEdit(this.props.idx, true)} />
                     </div>
                 </OutsideClickHandler>
             );
