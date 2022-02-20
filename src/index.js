@@ -7,7 +7,9 @@ import DataTable from './DataTable';
 /*****************/
 
 // manual switch to select which app to display
+
 const key = 'data-table';
+
 var appToShow;
 
 switch (key) {
