@@ -1,5 +1,6 @@
 import React from 'react';
 import './DataTable.css';
+import OutsideClickHandler from './OutsideClickHandler.js';
 
 /**
  * Component that represents a table. Contains the state.
@@ -143,7 +144,12 @@ class DataTableRow extends React.Component {
 
         if (this.props.isEditMode) {
             return (
-                <div className="dtable-row-wrapper selected-row">
+                <OutsideClickHandler
+                    onOutsideClick={() => {
+                        alert('You clicked outside of this component!!!');
+                    }}
+                    customClass={"dtable-row-wrapper heyclass selected-row"}
+                >
                     <div className={"dtable-row"}>
                         {columnComponents}
                     </div>
@@ -151,7 +157,7 @@ class DataTableRow extends React.Component {
                         <input type="button" value="Cancel" />
                         <input type="button" value="Save" />
                     </div>
-                </div>
+                </OutsideClickHandler>
             );
         } else {
             return (
