@@ -10,6 +10,7 @@ import './DataTable.css';
 class DataTable extends React.Component {
     constructor(props) {
         super(props);
+        this.handleChange = this.handleChange.bind(this);
         this.state = {
             headerData: null,
             tableData: null,
@@ -17,6 +18,10 @@ class DataTable extends React.Component {
             dataFetchError: null,
             editableRows: null,
         }
+    }
+
+    handleChange(newValue) {
+        // this.setState({tableData})
     }
 
     processJsonData(dataArr) {
@@ -133,11 +138,31 @@ function DataTableRow(props) {
         );
     });
 
-    return (
-        <div className={props.isHeader ? "dtable-header-row" : "dtable-row"}>
-            {columnComponents}
-        </div>
-    );
+    
+    if (props.isEditMode) {
+        return (
+            <div className="dtable-row-wrapper selected-row">
+                <div className={props.isHeader ? "dtable-header-row" : "dtable-row"}>
+                    {columnComponents}
+                </div>
+                <div className="dtable-row-btn-panel">
+                    <input type="button" value="Cancel" />
+                    <input type="button" value="Save" />
+                </div>
+            </div>
+        ); 
+    } else {
+        return (
+            <div className="dtable-row-wrapper">
+                <div className={props.isHeader ? "dtable-header-row" : "dtable-row"}>
+                    {columnComponents}
+                </div>
+            </div>
+        );
+    }
+    
+
+    
 }
 
 /**
@@ -153,14 +178,9 @@ function DataTableRow(props) {
 function DataTableCell(props) {
     if (props.rowIsEditMode) {
         return (
-            <div
-                className={props.isHeader ? "dtable-header-cell" : "dtable-cell"}
-            >
-                <input type="text" value={props.data}>
-                    
-                </input>
+            <div className={"dtable-cell"}>
+                <input className="dt-field" type="text" value={props.data} />
             </div>
-            
         );
     } else {
         return (
