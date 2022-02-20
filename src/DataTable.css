@@ -1,9 +1,10 @@
 /* Default styling of DataTable components */
 
 :root {
-    --border-color: #d1bddb;
+    --default-border: #bbbbbb;
+    --highlighted-border: #7e86f0;
     --content-text: #0a0a0a;
-    --header-bg: #5c5c5c;
+    --header-bg: #8c8c8c;
 }
 
 body {
@@ -19,7 +20,7 @@ body {
     padding: 10px;
 }
 
-.dtable-row-wrapper {
+.dtable > div {
     flex: 1 30px;
     display: flex;
     flex-flow: column nowrap;
@@ -31,27 +32,32 @@ body {
     justify-content: space-around;
 
     flex-basis: 100%;
-    padding: 0px;
     
 }
 
 .selected-row {
     flex: 1;
+    border: 1px solid var(--highlighted-border);
+}
+
+.selected-row .dtable-cell {
+    padding-left: 1px;
+    padding-right: 1px;
 }
 
 .dtable-header-row {
-    border-top: 1px solid var(--border-color);
-    background-color: var(--border-color);
-    color: white;
+    border-top: 1px solid var(--default-border);
+    background-color: var(--default-border);
 }
 
 
 .dtable-cell, .dtable-header-cell {
     flex: 1 100px;
     min-width: 50px;
-    border-right: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--default-border);
+    border-bottom: 1px solid var(--default-border);
     padding: 2px;
+    padding-left: 5px;
     user-select: none;
 
     display: flex;
@@ -63,7 +69,7 @@ body {
 
 .dtable-header-cell:nth-of-type(1),
 .dtable-cell:nth-of-type(1) {
-    border-left: 1px solid var(--border-color);
+    border-left: 1px solid var(--default-border);
 }
 
 .dtable-header-cell {
@@ -72,9 +78,9 @@ body {
 }
 
 .dtable-row-btn-panel {
-    border-bottom: 1px solid var(--border-color);
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--default-border);
+    border-left: 1px solid var(--default-border);
+    border-right: 1px solid var(--default-border);
     padding: 2px;
     text-align: right;
 }
