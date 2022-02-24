@@ -92,7 +92,7 @@ class DataTable extends React.Component {
     }
 
     componentDidMount() {
-        let url = props.dataSourceUrl;
+        let url = this.props.dataSourceUrl;
         fetch(url)
             .then((response) => {
                 if (!response.ok) {

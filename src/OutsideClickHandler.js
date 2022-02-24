@@ -1,3 +1,8 @@
+/**
+ * Modified version of @airbnb/react-outside-click-handler
+ * Added a className parameter to the component.
+ * Also removed some dependencies
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
 
