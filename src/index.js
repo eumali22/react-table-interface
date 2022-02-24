@@ -11,6 +11,8 @@ import DataTable from './DataTable';
 const key = 'data-table';
 
 var appToShow;
+// let url = "http://localhost:3001/employees";
+let url = "https://jsonplaceholder.typicode.com/albums";
 
 switch (key) {
   case 'hook-example':
@@ -18,11 +20,11 @@ switch (key) {
     break;
 
   case 'data-table':
-    appToShow = <DataTable />
+    appToShow = <DataTable dataSourceUrl={url} />
     break;
 
   default:
-    appToShow = <DataTable />
+    appToShow = <DataTable dataSourceUrl={url} />
     break;
 }
 
