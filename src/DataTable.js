@@ -223,7 +223,7 @@ class DataTableCell extends React.Component {
                 className={this.props.isHeader ? "dtable-header-cell" : "dtable-cell"}
                 onDoubleClick={() => this.props.onDblClick(this.props.rowIdx)}
             >
-                {this.props.data}
+                {this.props.data.toString()}
             </div>
         );
     }
