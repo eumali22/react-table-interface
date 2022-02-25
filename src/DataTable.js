@@ -12,7 +12,7 @@ class DataTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleChange = this.handleChange.bind(this);
+        this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleRowEdit = this.handleRowEdit.bind(this);
 
         this.state = {
@@ -24,7 +24,6 @@ class DataTable extends React.Component {
             rowBeforeEdit: null,
         }
     }
-
 
     /**
      * Double clicking any cell will edit the whole row.
@@ -46,7 +45,7 @@ class DataTable extends React.Component {
         });
     }
 
-    handleChange(rowIdx, cellIdx, newValue) {
+    handleFieldChange(rowIdx, cellIdx, newValue) {
         const newTableData = [...this.state.tableData];
         newTableData[rowIdx][cellIdx] = newValue;
         this.setState({tableData: newTableData});
@@ -137,7 +136,7 @@ class DataTable extends React.Component {
                     cells={elt}
                     onDblClick={(i) => this.handleDblClick(i)}
                     isEditMode={this.state.editableRows[idx]}
-                    onFieldChange={this.handleChange}
+                    onFieldChange={this.handleFieldChange}
                     handleRowEdit={this.handleRowEdit}
                 />
             );
@@ -152,49 +151,59 @@ class DataTable extends React.Component {
 }
 
 class DataTableRow extends React.Component {
-    render() {
-        // create the cells
-        const columnComponents = this.props.cells.map((col, idx) => {
-            return (
-                <DataTableCell
-                    key={idx}
-                    rowIdx={this.props.idx}
-                    idx={idx}
-                    data={this.props.cells[idx]}
-                    isHeader={this.props.isHeader}
-                    onDblClick={this.props.onDblClick}
-                    rowIsEditMode={this.props.isEditMode}
-                    onFieldChange={this.props.onFieldChange}
-                />
-            );
-        });
-
-        if (this.props.isEditMode) {
-            return (
-                <OutsideClickHandler
-                    onOutsideClick={() => this.props.handleRowEdit(this.props.idx, false)}
-                    customClass={"dtable-row-wrapper heyclass selected-row"}
-                >
-                    <div className={"dtable-row"}>
-                        {columnComponents}
-                    </div>
-                    <div className="dtable-row-btn-panel">
-                        <input type="button" value="Cancel"
-                            onClick={() => this.props.handleRowEdit(this.props.idx, false)} />
-                        <input type="button" value="Save"
-                            onClick={() => this.props.handleRowEdit(this.props.idx, true)} />
-                    </div>
-                </OutsideClickHandler>
-            );
-        } else {
-            return (
-                <div className="dtable-row-wrapper">
-                    <div className={this.props.isHeader ? "dtable-header-row" : "dtable-row"}>
-                        {columnComponents}
-                    </div>
+    renderRowDefault(columnComponents) {
+        return (
+            <div className="dtable-row-wrapper">
+                <div className={this.props.isHeader ? "dtable-header-row" : "dtable-row"}>
+                    {columnComponents}
                 </div>
-            );
-        }
+            </div>
+        );
+    }
+
+    renderRowEditable(columnComponents) {
+        return (
+            <OutsideClickHandler
+                onOutsideClick={() => this.props.handleRowEdit(this.props.idx, false)}
+                customClass={"dtable-row-wrapper selected-row"}
+            >
+                <div className={"dtable-row"}>
+                    {columnComponents}
+                </div>
+                <div className="dtable-row-btn-panel">
+                    <input type="button" value="Cancel"
+                        onClick={() => this.props.handleRowEdit(this.props.idx, false)} />
+                    <input type="button" value="Save"
+                        onClick={() => this.props.handleRowEdit(this.props.idx, true)} />
+                </div>
+            </OutsideClickHandler>
+        );
+    }
+
+    renderRow(cells) {
+        return (this.props.isEditMode) ?
+            this.renderRowEditable(cells) :
+            this.renderRowDefault(cells);
+    }
+
+    renderCell(idx) {
+        return (
+            <DataTableCell
+                key={idx}
+                rowIdx={this.props.idx}
+                idx={idx}
+                data={this.props.cells[idx]}
+                isHeader={this.props.isHeader}
+                onDblClick={this.props.onDblClick}
+                rowIsEditMode={this.props.isEditMode}
+                onFieldChange={this.props.onFieldChange}
+            />
+        );
+    }
+
+    render() {
+        return this.renderRow(
+            this.props.cells.map((col, idx) => this.renderCell(idx)));
     }
 }
 
@@ -208,28 +217,32 @@ class DataTableCell extends React.Component {
         this.props.onFieldChange(this.props.rowIdx, this.props.idx, e.target.value);
     }
 
-    render() {
-        if (this.props.rowIsEditMode) {
-            return (
-                <div className={"dtable-cell"}>
-                    <input className="dt-field" type="text"
-                        value={this.props.data}
-                        onChange={this.handleChange} />
-                </div>
-            );
-        } else {
-            return (
-                <div
-                    className={this.props.isHeader ? "dtable-header-cell" : "dtable-cell"}
-                    onDoubleClick={() => this.props.onDblClick(this.props.rowIdx)}
-                >
-                    {this.props.data}
-                </div>
-            );
-        }
+    renderCellDefault() {
+        return (
+            <div
+                className={this.props.isHeader ? "dtable-header-cell" : "dtable-cell"}
+                onDoubleClick={() => this.props.onDblClick(this.props.rowIdx)}
+            >
+                {this.props.data}
+            </div>
+        );
     }
-    
-}
 
+    renderCellEditable() {
+        return (
+            <div className={"dtable-cell"}>
+                <input className="dt-field" type="text"
+                    value={this.props.data}
+                    onChange={this.handleChange} />
+            </div>
+        );
+    }
+
+    render() {
+        return (this.props.rowIsEditMode) ?
+            this.renderCellEditable() :
+            this.renderCellDefault();
+    }
+}
 
 export default DataTable;
