@@ -25,6 +25,9 @@ yarn-error.log*
 # vs code workspace
 default.code-workspace
 
+
+amplify/team-provider-info.json
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
@@ -45,5 +48,3 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
-
-amplify/team-provider-info.json
